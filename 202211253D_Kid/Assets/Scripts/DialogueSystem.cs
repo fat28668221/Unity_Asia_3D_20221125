@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using TMPro;
-namespace Just
+namespace Justin
 {
     /// <summary>
     /// 對話系統
