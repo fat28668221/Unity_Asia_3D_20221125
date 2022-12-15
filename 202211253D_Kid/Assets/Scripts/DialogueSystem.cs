@@ -14,6 +14,8 @@ namespace Justin
         private float dialogueIntervalTime = 0.1f;
         [SerializeField, Header("開頭對話")]
         private DialogueData dialogueOpening;
+        [SerializeField, Header("對話按鍵")]
+        private KeyCode dialogueKey = KeyCode.Space;
 
         private WaitForSeconds dialogueInterval => new WaitForSeconds(dialogueIntervalTime);
 
@@ -34,36 +36,49 @@ namespace Justin
 
             StartCoroutine(FadeGroup());
             StartCoroutine(TypeEffect());
-        } 
+        }
         #endregion
 
-        private IEnumerator FadeGroup()
+        private IEnumerator FadeGroup(bool fadeIn = true)
         {
+            float increase = fadeIn ? +0.1f : - 0.1f;
+
             for (int i = 0; i < 10; i++)
             {
-                groupDialogue.alpha += 0.1f;
+                groupDialogue.alpha += increase;
                 yield return new WaitForSeconds(0.04f);
 
 
             }
 
+
         }
         private IEnumerator TypeEffect()
         {
             textName.text = dialogueOpening.dialogueName;
-            textContont.text = "";
 
-            string dailogue = dialogueOpening.dialogueContents[1];
-
-            for (int i = 0; i < dailogue.Length; i++)
+            for(int j = 0; j < dialogueOpening.dialogueContents.Length; j++)
             {
-                textContont.text += dailogue[i];
-                yield return dialogueInterval;
+                textContont.text = "";
+                goTriangle.SetActive(false);
+
+                string dailogue = dialogueOpening.dialogueContents[j];
+
+                for (int i = 0; i < dailogue.Length; i++)
+                {
+                    textContont.text += dailogue[i];
+                    yield return dialogueInterval;
+                }
+                goTriangle.SetActive(true);
+
+                while (!Input.GetKeyDown(dialogueKey))
+                {
+                    yield return null;
+                }
+                print("<color=#993300>玩家按下按鍵!</color>");
             }
-            goTriangle.SetActive(true);
+            StartCoroutine(FadeGroup(false));
         }
-            
-        
     }
 }
 
