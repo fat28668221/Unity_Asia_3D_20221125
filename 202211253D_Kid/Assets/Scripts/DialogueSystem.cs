@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using TMPro;
 using System.Collections;
+using UnityEngine.InputSystem;
+using UnityEngine.Events;
 namespace Justin
 {
     /// <summary>
@@ -25,6 +27,10 @@ namespace Justin
         private GameObject goTriangle;
         #endregion
 
+        private PlayerInput playerInput;
+
+        private UnityEvent onDialogueFinish;
+
         #region 事件
         private void Awake()
         {
@@ -34,10 +40,21 @@ namespace Justin
             goTriangle = GameObject.Find("對話完成圖示");
             goTriangle.SetActive(false);
 
-            StartCoroutine(FadeGroup());
-            StartCoroutine(TypeEffect());
+            playerInput = GameObject.Find("PlayerCapsule").GetComponent<PlayerInput>();
+
+            StarDialogue(dialogueOpening);
+
+           
         }
         #endregion
+
+        public void StarDialogue(DialogueData data, UnityEvent _onDialogueFinish = null)
+        {
+            playerInput.enabled = false;
+            StartCoroutine(FadeGroup());
+            StartCoroutine(TypeEffect(data));
+            onDialogueFinish = _onDialogueFinish;
+        }
 
         private IEnumerator FadeGroup(bool fadeIn = true)
         {
@@ -53,16 +70,17 @@ namespace Justin
 
 
         }
-        private IEnumerator TypeEffect()
-        {
-            textName.text = dialogueOpening.dialogueName;
 
-            for(int j = 0; j < dialogueOpening.dialogueContents.Length; j++)
+        private IEnumerator TypeEffect(DialogueData data)
+        {
+            textName.text = data.dialogueName;
+
+            for(int j = 0; j < data.dialogueContents.Length; j++)
             {
                 textContont.text = "";
                 goTriangle.SetActive(false);
 
-                string dailogue = dialogueOpening.dialogueContents[j];
+                string dailogue = data.dialogueContents[j];
 
                 for (int i = 0; i < dailogue.Length; i++)
                 {
@@ -78,6 +96,9 @@ namespace Justin
                 print("<color=#993300>玩家按下按鍵!</color>");
             }
             StartCoroutine(FadeGroup(false));
+
+            playerInput.enabled = true;
+            onDialogueFinish?.Invoke();
         }
     }
 }
